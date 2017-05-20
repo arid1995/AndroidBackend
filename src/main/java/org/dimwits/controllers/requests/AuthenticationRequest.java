@@ -1,16 +1,16 @@
-package org.dimwits.requests;
+package org.dimwits.controllers.requests;
 
 /**
  * Created by farid on 3/22/17.
  */
-public class RegistrationRequest {
+public class AuthenticationRequest {
     private String login;
     private String password;
 
-    public RegistrationRequest() {
+    public AuthenticationRequest() {
     }
 
-    public RegistrationRequest(String login, String password) {
+    public AuthenticationRequest(String login, String password) {
         this.login = login;
         this.password = password;
     }
