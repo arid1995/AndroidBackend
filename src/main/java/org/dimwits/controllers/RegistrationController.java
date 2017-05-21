@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import org.dimwits.controllers.requests.AuthenticationRequest;
 import org.dimwits.controllers.requests.RegistrationRequest;
+import org.dimwits.controllers.requests.SessionId;
 import org.dimwits.database.entities.User;
 import org.dimwits.services.AccountService;
 import org.dimwits.services.SessionService;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
@@ -52,8 +54,7 @@ public class RegistrationController {
       final ObjectMapper mapper = new ObjectMapper();
       final ObjectNode response = mapper.createObjectNode();
 
-      response.put("userId", user.getUserId());
-      response.put("login", user.getLogin());
+      response.put("sessionId", user.getUserId());
 
       return ResponseEntity.ok().body(response);
     }
@@ -63,8 +64,7 @@ public class RegistrationController {
   }
 
   @RequestMapping(path = "/api/session", method = RequestMethod.POST)
-  public ResponseEntity auth(@RequestBody AuthenticationRequest body,
-      HttpSession httpSession) {
+  public ResponseEntity auth(@RequestBody AuthenticationRequest body) {
 
     final String login = body.getLogin();
     final String password = body.getPassword();
@@ -82,12 +82,12 @@ public class RegistrationController {
     }
 
     if (user.matchPassword(password)) {
-      sessionService.addUserToSession(httpSession.getId(), user);
+      String hash = sessionService.addUserToSession(user);
 
       final ObjectMapper mapper = new ObjectMapper();
       final ObjectNode response = mapper.createObjectNode();
 
-      response.put("id", user.getUserId());
+      response.put("sessionId", hash);
 
       return ResponseEntity.ok(response);
     }
@@ -97,9 +97,9 @@ public class RegistrationController {
   }
 
   @RequestMapping(path = "/api/session", method = RequestMethod.DELETE)
-  public ResponseEntity logout(HttpSession httpSession) {
+  public ResponseEntity logout(@RequestBody SessionId body) {
 
-    final String sessionId = httpSession.getId();
+    final String sessionId = body.getSessionId();
     final User user = sessionService.getUserBySessionId(sessionId);
 
     if (user == null) {
@@ -113,8 +113,7 @@ public class RegistrationController {
   }
 
   @RequestMapping(path = "/api/user", method = RequestMethod.POST)
-  public ResponseEntity register(@RequestBody RegistrationRequest body,
-      HttpSession httpSession) {
+  public ResponseEntity register(@RequestBody RegistrationRequest body) {
 
     final String login = body.getLogin();
     final String password = body.getPassword();
@@ -152,9 +151,9 @@ public class RegistrationController {
     return ResponseEntity.ok(response);
   }
 
-  @RequestMapping(path = "api/user/{id}", method = RequestMethod.GET)
-  public ResponseEntity getUser(@PathVariable("id") int id) {
-    final User user = accountService.getUser(id);
+  @RequestMapping(path = "api/user/{login}", method = RequestMethod.GET)
+  public ResponseEntity getUser(@PathVariable("login") String login, @RequestBody SessionId body) {
+    final User user = accountService.getUser(login);
 
     if (user == null) {
       return status(HttpStatus.BAD_REQUEST).body(RegistrationErrors.getErrorMessage(

@@ -6,12 +6,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
+import javax.jws.soap.SOAPBinding.Use;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -53,6 +55,9 @@ public class User {
 
   @ElementCollection
   private List<String> images = new ArrayList<>();
+
+  @ManyToMany()
+  private List<User> friends = new ArrayList<>();
 
   public User() {
   }
@@ -101,6 +106,10 @@ public class User {
     return new ArrayList<>(images);
   }
 
+  public List<User> getFriends() {
+    return new ArrayList<>(friends);
+  }
+
   public boolean matchPassword(String plainPassword) {
     final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     return encoder.matches(plainPassword, password);
@@ -145,6 +154,14 @@ public class User {
 
   public void deleteImage(String imagePath) {
     images.remove(imagePath);
+  }
+
+  public void addFriend(User friend) {
+    friends.add(friend);
+  }
+
+  public void removeFriend(User friend) {
+    friends.remove(friend);
   }
 
   public String toJSON() {

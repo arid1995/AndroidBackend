@@ -1,5 +1,7 @@
 package org.dimwits.services;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import org.dimwits.database.entities.User;
@@ -12,8 +14,13 @@ import org.springframework.stereotype.Service;
 public class SessionService {
   private Map<String, User> sessionIdToUser = new HashMap<>();
 
-  public void addUserToSession (String sessionId, User user) {
-    sessionIdToUser.put(sessionId, user);
+  private String generateHash() {
+    return new BigInteger(128, new SecureRandom()).toString(32);
+  }
+  public String addUserToSession (User user) {
+    String hash = generateHash();
+    sessionIdToUser.put(hash, user);
+    return hash;
   }
 
   public void endSession (String sessionId) {
