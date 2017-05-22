@@ -28,9 +28,9 @@ public class FileController {
     this.storageService = storageService;
   }
 
-  @RequestMapping(path = "/", method = RequestMethod.POST)
-  public ResponseEntity uploadFile(@RequestParam("file") MultipartFile file,
-      RedirectAttributes redirectAttributes) {
+  @RequestMapping(path = "", method = RequestMethod.POST)
+  public ResponseEntity uploadFile(@RequestParam("file") MultipartFile file) {
+    int a = 2;
     return ResponseEntity.ok().body(storageService.store(file));
   }
 

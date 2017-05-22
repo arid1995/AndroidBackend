@@ -6,6 +6,7 @@ import org.hibernate.HibernateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created by farid on 5/19/17.
@@ -24,6 +25,7 @@ public class AccountService {
     }
   }
 
+  @Transactional
   public User getUser(String login) {
     try {
       return userDao.findByLogin(login);

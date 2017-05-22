@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
@@ -121,7 +120,7 @@ public class RegistrationController {
     final String firstName = body.getFirstName();
     final String lastName = body.getLastName();
     final String about = body.getAbout();
-    final String avatarPath = body.getAvatarPath();
+    final String avatarPath = body.getAvatar();
 
     if (StringUtils.isEmpty(login)
         || StringUtils.isEmpty(password)
@@ -143,10 +142,10 @@ public class RegistrationController {
           .getErrorMessage(RegistrationErrors.EXISTING_USER));
     }
 
+    String hash = sessionService.addUserToSession(user);
     final ObjectMapper mapper = new ObjectMapper();
     final ObjectNode response = mapper.createObjectNode();
-
-    response.put("id", user.getUserId());
+    response.put("sessionId", hash);
 
     return ResponseEntity.ok(response);
   }
@@ -162,6 +161,19 @@ public class RegistrationController {
 
     return ResponseEntity.ok(user.toJSON());
   }
+
+  @RequestMapping(path = "api/user/session/{session}", method = RequestMethod.GET)
+  public ResponseEntity getUserBySessionId(@PathVariable("session") String sessionId) {
+    final User user = sessionService.getUserBySessionId(sessionId);
+
+    if (user == null) {
+      return status(HttpStatus.BAD_REQUEST).body(RegistrationErrors.getErrorMessage(
+          RegistrationErrors.WRONG_ID));
+    }
+
+    return ResponseEntity.ok(user.toJSON());
+  }
+
 
   @RequestMapping(path = "api/user/{id}", method = RequestMethod.PUT)
   public ResponseEntity editUser(@PathVariable("id") int id,

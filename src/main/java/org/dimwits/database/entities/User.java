@@ -10,6 +10,7 @@ import javax.jws.soap.SOAPBinding.Use;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -53,10 +54,10 @@ public class User {
   @Column(nullable = false, name = "avatar")
   private String avatar;
 
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.EAGER)
   private List<String> images = new ArrayList<>();
 
-  @ManyToMany()
+  @ManyToMany(fetch = FetchType.EAGER)
   private List<User> friends = new ArrayList<>();
 
   public User() {
@@ -170,6 +171,7 @@ public class User {
       final ObjectMapper mapper = new ObjectMapper();
       json = mapper.writeValueAsString(this);
     } catch (JsonProcessingException e) {
+      e.printStackTrace();
       json = "{}";
     }
 

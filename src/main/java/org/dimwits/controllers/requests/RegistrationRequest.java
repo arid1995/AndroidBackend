@@ -10,7 +10,7 @@ public class RegistrationRequest {
   private String email;
   private String firstName;
   private String lastName;
-  private String avatarPath;
+  private String avatar;
   private String about;
 
   public String getLogin() {
@@ -33,8 +33,8 @@ public class RegistrationRequest {
     return lastName;
   }
 
-  public String getAvatarPath() {
-    return avatarPath;
+  public String getAvatar() {
+    return avatar;
   }
 
   public String getAbout() {
